@@ -62,6 +62,26 @@ bool Game_InitMap(Game *game, const char *map_name)
     return true;
 }
 
+bool Game_InitPlayer(Game *game)
+{
+
+    game->player = (Player *)malloc(sizeof(Player));
+    if (!game->player)
+    {
+        fprintf(stderr, "Failed to allocate memory for player!\n");
+        return false;
+    }
+
+    if (!Player_Init(game->player, game->renderer, "resources/sprites/player.png", 25, 32, 100.0f, 100.0f, PLAYER_HITBOX_WIDTH, PLAYER_HITBOX_HEIGHT))
+    {
+        fprintf(stderr, "Failed to initialize player!\n");
+        free(game->player);
+        game->player = NULL;
+        return false;
+    }
+    return true;
+}
+
 Game *Game_Create(const char *title, int width, int height)
 {
 
@@ -84,6 +104,12 @@ Game *Game_Create(const char *title, int width, int height)
     }
 
     if (!Game_InitMap(game, "map3"))
+    {
+        Game_Free(game);
+        return NULL;
+    }
+
+    if (!Game_InitPlayer(game))
     {
         Game_Free(game);
         return NULL;
@@ -112,6 +138,13 @@ void Game_Free(Game *game)
         game->window = NULL;
     }
 
+    if (game->player)
+    {
+        Player_Free(game->player);
+        free(game->player);
+        game->player = NULL;
+    }
+
     IMG_Quit();
     SDL_Quit();
     free(game);
@@ -123,6 +156,7 @@ void Game_UpdateData(Game *game, float deltaTime)
     {
     case MODE_WORLD:
         Map_Update(game->current_map, deltaTime);
+        Player_Update(game->player);
         break;
     default:
         break;
@@ -145,6 +179,8 @@ static void Game_UpdateGraphics(Game *game, Uint32 currentTime)
             // player
             Map_RenderLayer(game->current_map, game->renderer, "SecondPlanCalque");
         }
+
+        Player_Draw(game->player, game->renderer);
 
         break;
 

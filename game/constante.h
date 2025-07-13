@@ -1,0 +1,12 @@
+#ifndef CONSTANTE_H
+#define CONSTANTE_H
+
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+#define SCREEN_TITLE "Pokemon V2"
+#define PLAYER_HITBOX_WIDTH 15
+#define PLAYER_HITBOX_HEIGHT 5
+#define PLAYER_WIDTH 25
+#define PLAYER_HEIGHT 32
+
+#endif // CONSTANTE_H

@@ -68,5 +68,6 @@ static void Map_LoadCollisions(Map *map);
 static void Map_LoadAnimatedTiles(Map *map);
 static void Map_RenderTileLayer(Map *map, SDL_Renderer *renderer, tmx_layer *layer);
 static void Map_DEBUG(Map *map);
+static void Map_SetDefaultSpawn(Map *map);
 
 #endif // MAP_H

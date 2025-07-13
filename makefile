@@ -8,7 +8,7 @@ LIBS = `sdl2-config --libs` -lSDL2_image -ltmx -lz `xml2-config --libs` -lm
 
 # Fichiers sources
 SRC = main.c \
-      framework/map.c game/game.c 
+      framework/map.c game/game.c game/entity.c game/player.c game/npc.c 
 
 # Objets correspondants
 OBJ = $(SRC:.c=.o)

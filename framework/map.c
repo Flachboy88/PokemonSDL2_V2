@@ -4,12 +4,11 @@
 #include <string.h>
 #include <stdbool.h> // Ajout explicite ici aussi, bien que map.h l'inclue
 
-// Déclarations des fonctions internes (forward declarations)
 static int Map_LoadTilesets(Map *map, SDL_Renderer *renderer);
 static void Map_LoadCollisions(Map *map);
 static void Map_RenderTileLayer(Map *map, SDL_Renderer *renderer, tmx_layer *layer);
-// Déclaration de tmx_find_object_by_name avant son utilisation
 static tmx_object *tmx_find_object_by_name(tmx_object_group *objgr, const char *name);
+static void Map_DefaultSpawn(Map *map);
 
 static int count_objects_in_layer(tmx_layer *layer, const char *layer_name, bool check_name_property)
 {
@@ -82,6 +81,22 @@ void Map_DEBUG(Map *map)
     printf("---------------------------------------\n");
 }
 
+static void Map_SetDefaultSpawn(Map *map)
+{
+    tmx_layer *spawn_layer = tmx_find_layer_by_name(map->tmx_map, "PlayerObject");
+    if (spawn_layer && spawn_layer->type == L_OBJGR)
+    {
+        tmx_object *spawn_obj = tmx_find_object_by_name(spawn_layer->content.objgr, "PlayerSpawn");
+        if (spawn_obj)
+        {
+            map->spawn_x = spawn_obj->x;
+            map->spawn_y = spawn_obj->y;
+        }
+    }
+
+    // printf("Spawn position: (%.2f, %.2f)\n", map->spawn_x, map->spawn_y);
+}
+
 Map *Map_Load(const char *filename, SDL_Renderer *renderer)
 {
     Map *map = malloc(sizeof(Map));
@@ -118,19 +133,11 @@ Map *Map_Load(const char *filename, SDL_Renderer *renderer)
     // Chargement des PNJ
     Map_LoadPNJ(map);
 
-    // Charger la position de spawn du joueur
-    tmx_layer *spawn_layer = tmx_find_layer_by_name(map->tmx_map, "PlayerObject");
-    if (spawn_layer && spawn_layer->type == L_OBJGR)
-    {
-        tmx_object *spawn_obj = tmx_find_object_by_name(spawn_layer->content.objgr, "PlayerSpawn");
-        if (spawn_obj)
-        {
-            map->spawn_x = spawn_obj->x;
-            map->spawn_y = spawn_obj->y;
-        }
-    }
+    // Charger la position du spawn par défaut
+    Map_SetDefaultSpawn(map);
+
     // printf("Map chargée avec succès: %s\n", filename);
-    Map_DEBUG(map);
+    // Map_DEBUG(map);
 
     return map;
 }
@@ -448,7 +455,6 @@ void Map_LoadPNJ(Map *map)
 }
 
 // Fonction utilitaire pour trouver un objet par son nom dans un groupe d'objets
-// Cette fonction n'est pas dans libtmx, donc je l'ajoute ici.
 static tmx_object *tmx_find_object_by_name(tmx_object_group *objgr, const char *name)
 {
     if (!objgr || !name)

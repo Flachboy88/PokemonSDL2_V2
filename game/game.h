@@ -7,6 +7,8 @@
 #include <SDL2/SDL_image.h>
 
 #include "../framework/map.h"
+#include "player.h"
+#include "constante.h"
 
 typedef enum
 {
@@ -27,7 +29,7 @@ typedef struct Game
     GameState state;
 
     Map *current_map;
-    // Player *player;
+    Player *player;
     Uint32 lastTime;
 
     bool running;
