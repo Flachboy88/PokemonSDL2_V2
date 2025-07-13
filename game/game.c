@@ -234,7 +234,7 @@ void Game_HandleGameStateEvent(Game *game, float deltaTime)
     {
     case MODE_WORLD:
 
-            break;
+        break;
     default:
         break;
     }

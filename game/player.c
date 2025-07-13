@@ -15,13 +15,21 @@ bool Player_Init(Player *player, SDL_Renderer *renderer, const char *initialSpri
 
     player->speed = PLAYER_SPEED;
 
-    if (!Entity_AddSpriteSheet(&player->baseEntity, renderer, initialSpriteSheetPath, "player_main", spriteWidth, spriteHeight))
+    if (!Entity_AddSpriteSheet(&player->baseEntity, renderer, initialSpriteSheetPath, "WALK", spriteWidth, spriteHeight))
     {
         return false;
     }
 
-    Entity_AddAnimation(&player->baseEntity, "idle_down", "player_main", 0, 0, 4, 200, true);
-    Entity_AddAnimation(&player->baseEntity, "walk_down", "player_main", 1, 0, 4, 150, true);
+    Entity_AddAnimation(&player->baseEntity, "idle_down", "WALK", 0, 0, 1, 200, false);
+    Entity_AddAnimation(&player->baseEntity, "idle_left", "WALK", 1, 0, 1, 200, false);
+    Entity_AddAnimation(&player->baseEntity, "idle_right", "WALK", 2, 0, 1, 200, false);
+    Entity_AddAnimation(&player->baseEntity, "idle_top", "WALK", 3, 0, 1, 150, false);
+
+    Entity_AddAnimation(&player->baseEntity, "walk_down", "WALK", 0, 0, 4, 200, true);
+    Entity_AddAnimation(&player->baseEntity, "walk_left", "WALK", 1, 0, 4, 200, true);
+    Entity_AddAnimation(&player->baseEntity, "walk_right", "WALK", 2, 0, 4, 200, true);
+    Entity_AddAnimation(&player->baseEntity, "walk_top", "WALK", 3, 0, 4, 150, true);
+
     Entity_SetAnimation(&player->baseEntity, "idle_down");
 
     return true;

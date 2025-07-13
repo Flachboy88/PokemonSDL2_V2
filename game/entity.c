@@ -188,6 +188,7 @@ void Entity_SetAnimation(Entity *entity, const char *animationName)
         entity->currentAnimationIndex = newIndex;
         entity->currentFrameIndex = 0;          // Réinitialise le cadre au début de la nouvelle animation
         entity->lastFrameTime = SDL_GetTicks(); // Réinitialise le temps du dernier cadre
+        entity->animationPaused = false;
 
         // IMPORTANT: Mettre à jour les dimensions générales du sprite de l'entité
         // pour qu'elles correspondent à la feuille de sprites de l'animation courante
