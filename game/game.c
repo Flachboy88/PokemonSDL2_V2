@@ -1,8 +1,10 @@
 #include "game.h"
+#include <unistd.h>
+#include <limits.h>
 
 static Map *Game_LoadAndInitMap(const char *name, SDL_Renderer *renderer);
 static bool Game_HandleInputEvents(Game *game, SDL_Event *event);
-static void Game_UpdateData(Game *game, float deltaTime);
+void Game_UpdateData(Game *game, float deltaTime);
 static void Game_UpdateGraphics(Game *game, Uint32 currentTime);
 
 bool Game_InitSDL(Game *game, const char *title, int width, int height)
@@ -47,14 +49,22 @@ bool Game_InitSDL(Game *game, const char *title, int width, int height)
 
 bool Game_InitMap(Game *game, const char *map_name)
 {
-}
+    char map_path[256];
+    snprintf(map_path, sizeof(map_path), "resources/maps/%s.tmx", map_name);
 
-bool Game_InitPlayer(Game *game)
-{
+    game->current_map = Map_Load(map_path, game->renderer);
+    if (!game->current_map)
+    {
+        fprintf(stderr, "Failed to load map: %s\n", map_path);
+        return false;
+    }
+
+    return true;
 }
 
 Game *Game_Create(const char *title, int width, int height)
 {
+
     Game *game = (Game *)malloc(sizeof(Game));
     if (!game)
     {
@@ -79,12 +89,6 @@ Game *Game_Create(const char *title, int width, int height)
         return NULL;
     }
 
-    if (!Game_InitPlayer(game))
-    {
-        Game_Free(game);
-        return NULL;
-    }
-
     game->lastTime = SDL_GetTicks();
 
     return game;
@@ -92,6 +96,10 @@ Game *Game_Create(const char *title, int width, int height)
 
 void Game_Free(Game *game)
 {
+    if (!game)
+        return;
+
+    Map_Free(game->current_map);
 
     if (game->renderer)
     {
@@ -103,16 +111,22 @@ void Game_Free(Game *game)
         SDL_DestroyWindow(game->window);
         game->window = NULL;
     }
-    // free maps
 
     IMG_Quit();
     SDL_Quit();
     free(game);
 }
 
-static void Game_UpdateData(Game *game, float deltaTime)
+void Game_UpdateData(Game *game, float deltaTime)
 {
-    // switch (game->state)
+    switch (game->state)
+    {
+    case MODE_WORLD:
+        Map_Update(game->current_map, deltaTime);
+        break;
+    default:
+        break;
+    }
 }
 
 static void Game_UpdateGraphics(Game *game, Uint32 currentTime)
@@ -120,34 +134,53 @@ static void Game_UpdateGraphics(Game *game, Uint32 currentTime)
     SDL_SetRenderDrawColor(game->renderer, 30, 30, 30, 255);
     SDL_RenderClear(game->renderer);
 
-    // affihcer map et joueur
+    switch (game->state)
+    {
+    case MODE_WORLD:
+        // Afficher la map
+        if (game->current_map)
+        {
+            Map_RenderLayer(game->current_map, game->renderer, "BackgroundCalque");
+            Map_RenderLayer(game->current_map, game->renderer, "PremierPlanCalque");
+            // player
+            Map_RenderLayer(game->current_map, game->renderer, "SecondPlanCalque");
+        }
+
+        break;
+
+    default:
+        break;
+    }
 
     SDL_RenderPresent(game->renderer);
 }
 
 void Game_HandleEvent(Game *game)
 {
-}
-
-void Game_Update(Game *game)
-{
-    Uint32 currentTime = SDL_GetTicks();
-    float deltaTime = (currentTime - game->lastTime) / 1000.0f;
-    game->lastTime = currentTime;
-
-    Game_UpdateData(game, deltaTime);
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT)
+        {
+            game->running = false;
+        }
+    }
+    Game_HandleGameStateEvent(game);
 }
 
 void Game_Render(Game *game)
 {
+    Game_UpdateGraphics(game, SDL_GetTicks());
 }
 
-void Game_Run(Game *game)
+void Game_HandleGameStateEvent(Game *game)
 {
-    while (game->running)
+    switch (game->state)
     {
-        Game_HandleEvent(game);
-        Game_Update(game);
-        Game_Render(game);
+    case MODE_WORLD:
+        // input joueur, collisions etc
+        break;
+    default:
+        break;
     }
 }

@@ -7,8 +7,6 @@
 #include <SDL2/SDL_image.h>
 
 #include "../framework/map.h"
-#include "player.h"
-#include "pnj.h"
 
 typedef enum
 {
@@ -29,9 +27,7 @@ typedef struct Game
     GameState state;
 
     Map *current_map;
-    Player *player;
-
-    Input input;
+    // Player *player;
     Uint32 lastTime;
 
     bool running;
@@ -40,9 +36,9 @@ typedef struct Game
 Game *Game_Create(const char *title, int width, int height);
 void Game_Free(Game *game);
 void Game_HandleEvent(Game *game);
-void Game_Update(Game *game);
+void Game_HandleGameStateEvent(Game *game);
+void Game_UpdateData(Game *game, float deltaTime);
 void Game_Render(Game *game);
-void Game_Run(Game *game);
 
 // Fonctions d'initialisation internes
 bool Game_InitSDL(Game *game, const char *title, int width, int height);

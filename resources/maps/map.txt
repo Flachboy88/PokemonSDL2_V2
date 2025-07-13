@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="21" nextobjectid="22">
  <tileset firstgid="1" name="Tools" tilewidth="16" tileheight="16" tilecount="36" columns="6">
-  <image source="../tileset/Sprout Lands - Sprites - Basic pack/Characters/Tools.png" width="96" height="96"/>
+  <image source="../../../PremierJeu/resources/tileset/Sprout Lands - Sprites - Basic pack/Characters/Tools.png" width="96" height="96"/>
   <tile id="14">
    <animation>
     <frame tileid="14" duration="350"/>
@@ -10,10 +10,9 @@
    </animation>
   </tile>
  </tileset>
- <tileset firstgid="37" source="../TSX/tileset_pokemon_sdk.tsx"/>
- <group id="10" name="Background">
-  <layer id="1" name="BackgroundCalque" width="30" height="30">
-   <data encoding="csv">
+ <tileset firstgid="37" source="../../../PremierJeu/resources/TSX/tileset_pokemon_sdk.tsx"/>
+ <layer id="1" name="BackgroundCalque" width="30" height="30">
+  <data encoding="csv">
 187,187,187,187,187,187,187,187,187,187,187,187,187,187,187,187,195,187,187,168,169,169,169,169,170,187,187,187,187,187,
 187,187,187,187,187,187,187,187,187,187,187,187,187,187,187,187,196,187,195,176,177,177,177,177,178,187,187,187,187,187,
 187,187,187,187,187,187,187,187,187,187,187,187,187,187,187,187,188,188,196,176,177,177,177,177,178,187,187,187,187,187,
@@ -45,11 +44,9 @@
 142,142,142,142,142,142,142,142,142,142,142,142,142,143,54,54,54,141,142,142,142,142,142,142,142,142,142,142,142,142,
 142,142,142,142,142,142,142,142,142,142,142,142,142,143,54,54,54,141,142,142,142,142,142,142,142,142,142,142,142,142
 </data>
-  </layer>
- </group>
- <group id="11" name="PremierPlan">
-  <layer id="2" name="PremierPlanCalque" width="30" height="30">
-   <data encoding="csv">
+ </layer>
+ <layer id="2" name="PremierPlanCalque" width="30" height="30">
+  <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,194,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -81,29 +78,29 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
-  </layer>
- </group>
- <group id="12" name="Entities">
-  <objectgroup id="20" name="PNJObject">
-   <object id="21" name="PNJJosephine" type="PNJ" x="232.667" y="106">
-    <properties>
-     <property name="MapNamePNJ" value="map3"/>
-     <property name="initialDirection" type="int" value="3"/>
-     <property name="speed" type="float" value="50"/>
-     <property name="spritePath" value="resources/sprites/pnj.png"/>
-    </properties>
-    <point/>
-   </object>
-  </objectgroup>
-  <objectgroup id="16" name="PlayerObject" class="Spawn">
-   <object id="12" name="PlayerSpawn" type="Player" x="72.5833" y="175.811">
-    <point/>
-   </object>
-  </objectgroup>
- </group>
- <group id="14" name="SecondPlan">
-  <layer id="5" name="SecondPlanCalque" width="30" height="30">
-   <data encoding="csv">
+ </layer>
+ <objectgroup id="20" name="PNJObject" class="PNJ">
+  <object id="21" type="PNJ" x="232.667" y="106">
+   <properties>
+    <property name="Hitbox" type="bool" value="true"/>
+    <property name="Name" value="Josephine"/>
+    <property name="dir" type="int" value="3"/>
+    <property name="speed" type="float" value="50"/>
+    <property name="sprite" value="../resources/sprites/pnj.png"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="16" name="PlayerObject" class="Spawn">
+  <properties>
+   <property name="map_visited" type="bool" value="false"/>
+  </properties>
+  <object id="12" name="PlayerSpawn" x="72.5833" y="175.811">
+   <point/>
+  </object>
+ </objectgroup>
+ <layer id="5" name="SecondPlanCalque" width="30" height="30">
+  <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -135,15 +132,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
-  </layer>
- </group>
- <group id="15" name="Collisions">
-  <objectgroup id="18" name="CollisionObject">
-   <object id="13" type="Collision" x="315.727" y="222.614" width="40.0443" height="29.8626"/>
-   <object id="15" name="Collision maison gauche" type="Collision" x="32.546" y="355.989" width="78.1579" height="60.2717"/>
-   <object id="20" name="TestDroite" type="Collision" x="463.75" y="256">
-    <polygon points="0,0 -31.75,-0.25 -32,-12 -39.25,-13.25 -39.75,-30 -34.75,-36.25 -34.75,-44.25 -41,-49.75 -40.25,-65.5 -21.5,-83 14.5,-82.5 14,-1.25"/>
-   </object>
-  </objectgroup>
- </group>
+ </layer>
+ <objectgroup id="18" name="CollisionObject">
+  <object id="13" type="Collision" x="315.727" y="222.614" width="40.0443" height="29.8626"/>
+  <object id="15" name="Collision maison gauche" type="Collision" x="32.546" y="355.989" width="78.1579" height="60.2717"/>
+ </objectgroup>
 </map>
