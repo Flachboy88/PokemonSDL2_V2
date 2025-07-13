@@ -7,6 +7,7 @@
 typedef struct
 {
     Entity baseEntity;
+    int speed;
 } Player;
 
 bool Player_Init(Player *player, SDL_Renderer *renderer, const char *spriteSheetPath,

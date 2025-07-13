@@ -5,7 +5,7 @@
 static Map *Game_LoadAndInitMap(const char *name, SDL_Renderer *renderer);
 static bool Game_HandleInputEvents(Game *game, SDL_Event *event);
 void Game_UpdateData(Game *game, float deltaTime);
-static void Game_UpdateGraphics(Game *game, Uint32 currentTime);
+static void Game_UpdateGraphics(Game *game);
 
 bool Game_InitSDL(Game *game, const char *title, int width, int height)
 {
@@ -155,7 +155,7 @@ void Game_UpdateData(Game *game, float deltaTime)
     switch (game->state)
     {
     case MODE_WORLD:
-        Map_Update(game->current_map, deltaTime);
+        Map_Update(game->current_map);
         Player_Update(game->player);
         break;
     default:
@@ -163,7 +163,7 @@ void Game_UpdateData(Game *game, float deltaTime)
     }
 }
 
-static void Game_UpdateGraphics(Game *game, Uint32 currentTime)
+static void Game_UpdateGraphics(Game *game)
 {
     SDL_SetRenderDrawColor(game->renderer, 30, 30, 30, 255);
     SDL_RenderClear(game->renderer);
@@ -191,7 +191,7 @@ static void Game_UpdateGraphics(Game *game, Uint32 currentTime)
     SDL_RenderPresent(game->renderer);
 }
 
-void Game_HandleEvent(Game *game)
+void Game_HandleEvent(Game *game, float deltaTime)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -201,20 +201,32 @@ void Game_HandleEvent(Game *game)
             game->running = false;
         }
     }
-    Game_HandleGameStateEvent(game);
+    Game_HandleGameStateEvent(game, deltaTime);
 }
 
 void Game_Render(Game *game)
 {
-    Game_UpdateGraphics(game, SDL_GetTicks());
+    Game_UpdateGraphics(game);
 }
 
-void Game_HandleGameStateEvent(Game *game)
+void Game_HandleGameStateEvent(Game *game, float deltaTime)
 {
     switch (game->state)
     {
     case MODE_WORLD:
-        // input joueur, collisions etc
+
+        // test mouvement
+        // si touche flèche gauche
+        if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LEFT])
+        {
+            game->player->baseEntity.x -= game->player->speed * deltaTime;
+        }
+        // si touche flèche droite
+        if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_RIGHT])
+        {
+            game->player->baseEntity.x += game->player->speed * deltaTime;
+        }
+
         break;
     default:
         break;

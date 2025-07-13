@@ -29,6 +29,8 @@ bool Entity_Init(Entity *entity, SDL_Renderer *renderer, const char *spriteSheet
     entity->hitbox.w = hitboxWidth;
     entity->hitbox.h = hitboxHeight;
     entity->traversable = traversable;
+    entity->spriteWidth = spriteWidth;
+    entity->spriteHeight = spriteHeight;
 
     // Chargement de la feuille de sprites
     SDL_Surface *surface = IMG_Load(spriteSheetPath);

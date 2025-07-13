@@ -13,14 +13,16 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    Uint32 lastTime = SDL_GetTicks();
+
     while (game->running)
     {
-        Game_HandleEvent(game);
-        Game_UpdateData(game, game->lastTime);
+        Uint32 currentTime = SDL_GetTicks();
+        float deltaTime = (float)(currentTime - lastTime) / 1000.0f;
+        lastTime = currentTime;
 
-        SDL_SetRenderDrawColor(game->renderer, 30, 30, 30, 255);
-        SDL_RenderClear(game->renderer);
-
+        Game_HandleEvent(game, deltaTime);
+        Game_UpdateData(game, deltaTime);
         Game_Render(game);
     }
 

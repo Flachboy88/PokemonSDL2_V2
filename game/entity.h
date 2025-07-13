@@ -41,6 +41,8 @@ typedef struct
     Uint32 lastFrameTime;      // Temps du dernier changement de cadre
     bool animationPaused;      // Indique si l'animation est en pause
     bool traversable;          // Indique si l'entité peut être traversée
+    int spriteWidth;           // Largeur d'un sprite sur la feuille
+    int spriteHeight;          // Hauteur d'un sprite sur la feuille
 
 } Entity;
 

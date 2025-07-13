@@ -193,7 +193,7 @@ void Map_Free(Map *map)
     free(map);
 }
 
-void Map_Update(Map *map, float deltaTime)
+void Map_Update(Map *map)
 {
     if (!map)
         return;

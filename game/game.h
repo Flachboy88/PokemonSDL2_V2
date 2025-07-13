@@ -37,8 +37,8 @@ typedef struct Game
 
 Game *Game_Create(const char *title, int width, int height);
 void Game_Free(Game *game);
-void Game_HandleEvent(Game *game);
-void Game_HandleGameStateEvent(Game *game);
+void Game_HandleEvent(Game *gamen, float deltaTime);
+void Game_HandleGameStateEvent(Game *game, float deltaTime);
 void Game_UpdateData(Game *game, float deltaTime);
 void Game_Render(Game *game);
 
