@@ -9,6 +9,7 @@
 #include "../framework/map.h"
 #include "player.h"
 #include "constante.h"
+#include "npc.h"
 
 typedef enum
 {
@@ -31,6 +32,9 @@ typedef struct Game
     Map *current_map;
     Player *player;
     Uint32 lastTime;
+
+    // test NPC
+    NPC *npc;
 
     bool running;
 } Game;

@@ -6,6 +6,7 @@ static Map *Game_LoadAndInitMap(const char *name, SDL_Renderer *renderer);
 static bool Game_HandleInputEvents(Game *game, SDL_Event *event);
 void Game_UpdateData(Game *game, float deltaTime);
 static void Game_UpdateGraphics(Game *game);
+void TestNPC_Update(NPC *npc, float deltaTime);
 
 bool Game_InitSDL(Game *game, const char *title, int width, int height)
 {
@@ -132,6 +133,21 @@ Game *Game_Create(const char *title, int width, int height)
         return NULL;
     }
 
+    // test NPC
+    game->npc = (NPC *)malloc(sizeof(NPC));
+    if (!game->npc)
+    {
+        fprintf(stderr, "Failed to allocate memory for NPC!\n");
+        return false;
+    }
+    if (!NPC_Init(game->npc, game->renderer, "resources/sprites/pnj.png", 25, 32, 250.0f, 250.0f, NPC_HITBOX_WIDTH, NPC_HITBOX_HEIGHT, 25.0f))
+    {
+        fprintf(stderr, "Failed to initialize NPC!\n");
+        free(game->npc);
+        game->npc = NULL;
+        return false;
+    }
+
     return game;
 }
 
@@ -164,6 +180,14 @@ void Game_Free(Game *game)
         printf("Player freed\n");
     }
 
+    if (game->npc)
+    {
+        NPC_Free(game->npc);
+        free(game->npc);
+        game->npc = NULL;
+        printf("NPC freed\n");
+    }
+
     IMG_Quit();
     SDL_Quit();
     free(game);
@@ -176,10 +200,16 @@ void Game_UpdateData(Game *game, float deltaTime)
     case MODE_WORLD:
         Map_Update(game->current_map);
         Player_Update(game->player);
+        TestNPC_Update(game->npc, deltaTime);
         break;
     default:
         break;
     }
+}
+
+void TestNPC_Update(NPC *npc, float deltaTime)
+{
+    NPC_Update(npc, deltaTime);
 }
 
 static void Game_UpdateGraphics(Game *game)
@@ -195,11 +225,10 @@ static void Game_UpdateGraphics(Game *game)
         {
             Map_RenderLayer(game->current_map, game->renderer, "BackgroundCalque");
             Map_RenderLayer(game->current_map, game->renderer, "PremierPlanCalque");
-            // player
+            Player_Draw(game->player, game->renderer);
+            NPC_Draw(game->npc, game->renderer);
             Map_RenderLayer(game->current_map, game->renderer, "SecondPlanCalque");
         }
-
-        Player_Draw(game->player, game->renderer);
 
         break;
 

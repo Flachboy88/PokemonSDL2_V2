@@ -9,5 +9,7 @@
 #define PLAYER_WIDTH 25
 #define PLAYER_HEIGHT 32
 #define PLAYER_SPEED 25
+#define NPC_HITBOX_WIDTH 25
+#define NPC_HITBOX_HEIGHT 32
 
 #endif // CONSTANTE_H
