@@ -1,0 +1,5 @@
+# Ignorer tous les fichiers objets
+*.o
+
+# l'executable
+PokemonV2

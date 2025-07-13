@@ -14,7 +14,7 @@ SRC = main.c \
 OBJ = $(SRC:.c=.o)
 
 # Nom de l'exécutable
-EXEC = sdlapp
+EXEC = PokemonV2
 
 # Règle par défaut
 all: $(EXEC)

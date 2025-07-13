@@ -82,6 +82,23 @@ bool Game_InitPlayer(Game *game)
     return true;
 }
 
+bool testAjoutSpriteSheet(Game *game, SDL_Renderer *renderer)
+{
+
+    // exemple ajout sprite sheet
+    if (!Entity_AddSpriteSheet(&game->player->baseEntity, game->renderer,
+                               "resources/sprites/pnj.png", "player_combat", 25, 32))
+    {
+        fprintf(stderr, "Failed to load combat spritesheet!\n");
+        Player_Free(game->player);
+        free(game->player);
+        game->player = NULL;
+        return false;
+    }
+
+    Entity_AddAnimation(&game->player->baseEntity, "test", "player_combat", 1, 0, 4, 200, true);
+}
+
 Game *Game_Create(const char *title, int width, int height)
 {
 
@@ -115,8 +132,6 @@ Game *Game_Create(const char *title, int width, int height)
         return NULL;
     }
 
-    game->lastTime = SDL_GetTicks();
-
     return game;
 }
 
@@ -126,16 +141,19 @@ void Game_Free(Game *game)
         return;
 
     Map_Free(game->current_map);
+    printf("Map freed\n");
 
     if (game->renderer)
     {
         SDL_DestroyRenderer(game->renderer);
         game->renderer = NULL;
+        printf("Renderer freed\n");
     }
     if (game->window)
     {
         SDL_DestroyWindow(game->window);
         game->window = NULL;
+        printf("Window freed\n");
     }
 
     if (game->player)
@@ -143,6 +161,7 @@ void Game_Free(Game *game)
         Player_Free(game->player);
         free(game->player);
         game->player = NULL;
+        printf("Player freed\n");
     }
 
     IMG_Quit();
@@ -215,19 +234,7 @@ void Game_HandleGameStateEvent(Game *game, float deltaTime)
     {
     case MODE_WORLD:
 
-        // test mouvement
-        // si touche flèche gauche
-        if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LEFT])
-        {
-            game->player->baseEntity.x -= game->player->speed * deltaTime;
-        }
-        // si touche flèche droite
-        if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_RIGHT])
-        {
-            game->player->baseEntity.x += game->player->speed * deltaTime;
-        }
-
-        break;
+            break;
     default:
         break;
     }

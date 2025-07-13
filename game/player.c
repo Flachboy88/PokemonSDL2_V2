@@ -4,17 +4,24 @@
 const int LARGEUR_HITBOX = PLAYER_HITBOX_WIDTH;
 const int HAUTEUR_HITBOX = PLAYER_HITBOX_HEIGHT;
 
-bool Player_Init(Player *player, SDL_Renderer *renderer, const char *spriteSheetPath, int spriteWidth, int spriteHeight, float x, float y, int hitboxWidth, int hitboxHeight)
+bool Player_Init(Player *player, SDL_Renderer *renderer, const char *initialSpriteSheetPath,
+                 int spriteWidth, int spriteHeight, float x, float y,
+                 int hitboxWidth, int hitboxHeight)
 {
-    if (!Entity_Init(&player->baseEntity, renderer, spriteSheetPath, spriteWidth, spriteHeight, x, y, hitboxWidth, hitboxHeight, true))
+    if (!Entity_Init(&player->baseEntity, spriteWidth, spriteHeight, x, y, hitboxWidth, hitboxHeight, true))
     {
         return false;
     }
 
     player->speed = PLAYER_SPEED;
 
-    Entity_AddAnimation(&player->baseEntity, "idle_down", 0, 0, 4, 200, true);
-    Entity_AddAnimation(&player->baseEntity, "walk_down", 1, 0, 4, 150, true);
+    if (!Entity_AddSpriteSheet(&player->baseEntity, renderer, initialSpriteSheetPath, "player_main", spriteWidth, spriteHeight))
+    {
+        return false;
+    }
+
+    Entity_AddAnimation(&player->baseEntity, "idle_down", "player_main", 0, 0, 4, 200, true);
+    Entity_AddAnimation(&player->baseEntity, "walk_down", "player_main", 1, 0, 4, 150, true);
     Entity_SetAnimation(&player->baseEntity, "idle_down");
 
     return true;
@@ -25,7 +32,7 @@ void Player_Update(Player *player)
     Entity_UpdateAnimation(&player->baseEntity);
 
     // recalculer la hitbox
-    player->baseEntity.hitbox.x = (int)(player->baseEntity.x + player->baseEntity.spriteWidth / 2 - LARGEUR_HITBOX / 2);
+    player->baseEntity.hitbox.x = (int)(player->baseEntity.x + player->baseEntity.spriteWidth / 2 - LARGEUR_HITBOX / 2); // hitbox au pied du joueur
     player->baseEntity.hitbox.y = (int)(player->baseEntity.y + player->baseEntity.spriteHeight - HAUTEUR_HITBOX);
 }
 

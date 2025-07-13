@@ -14,9 +14,10 @@ typedef struct
 {
     Frame *frames;
     int frameCount;
-    int frameDurationMs; // Durée de chaque frame en millisecondes
-    bool loop;           // Indique si l'animation doit boucler
-    char name[64];       // Nom de l'animation (ex: "idle_down", "walk_left")
+    int frameDurationMs;  // Durée de chaque frame en millisecondes
+    bool loop;            // Indique si l'animation doit boucler
+    char name[64];        // Nom de l'animation (ex: "idle_down", "walk_left")
+    int spriteSheetIndex; // NOUVEAU: Index de la feuille de sprites à utiliser pour cette animation
 } Animation;
 
 typedef struct
@@ -26,6 +27,7 @@ typedef struct
     int sheetHeight;
     int spriteWidth;  // Largeur d'un sprite sur la feuille
     int spriteHeight; // Hauteur d'un sprite sur la feuille
+    char name[64];    // Nom de la feuille de sprites (pour référence)
 } SpriteSheet;
 
 // --- Structure de base de l'entité ---
@@ -33,7 +35,8 @@ typedef struct
 {
     float x, y;                // Position de l'entité dans le monde
     SDL_Rect hitbox;           // Rectangle de collision (dépend de x,y)
-    SpriteSheet spriteSheet;   // Feuille de sprites de l'entité
+    SpriteSheet *spriteSheets; // NOUVEAU: Tableau de feuilles de sprites de l'entité
+    int spriteSheetCount;      // NOUVEAU: Nombre de feuilles de sprites chargées
     Animation *animations;     // Tableau de toutes les animations de l'entité
     int animationCount;        // Nombre total d'animations
     int currentAnimationIndex; // Index de l'animation en cours
@@ -41,17 +44,22 @@ typedef struct
     Uint32 lastFrameTime;      // Temps du dernier changement de cadre
     bool animationPaused;      // Indique si l'animation est en pause
     bool traversable;          // Indique si l'entité peut être traversée
-    int spriteWidth;           // Largeur d'un sprite sur la feuille
-    int spriteHeight;          // Hauteur d'un sprite sur la feuille
+    int spriteWidth;           // Largeur d'un sprite sur la feuille (peut devenir spécifique à la SpriteSheet active)
+    int spriteHeight;          // Hauteur d'un sprite sur la feuille (peut devenir spécifique à la SpriteSheet active)
 
 } Entity;
 
 // --- Fonctions de gestion de l'entité et des animations ---
-bool Entity_Init(Entity *entity, SDL_Renderer *renderer, const char *spriteSheetPath,
-                 int spriteWidth, int spriteHeight, float x, float y,
+
+bool Entity_Init(Entity *entity, int spriteWidth, int spriteHeight, float x, float y,
                  int hitboxWidth, int hitboxHeight, bool traversable);
 
+bool Entity_AddSpriteSheet(Entity *entity, SDL_Renderer *renderer,
+                           const char *spriteSheetPath, const char *name,
+                           int spriteWidth, int spriteHeight);
+
 void Entity_AddAnimation(Entity *entity, const char *animationName,
+                         const char *spriteSheetName,
                          int startRow, int startCol, int frameCount,
                          int frameDurationMs, bool loop);
 
