@@ -35,10 +35,10 @@ bool Player_Init(Player *player, SDL_Renderer *renderer, const char *initialSpri
 
     return true;
 }
-void Player_Update(Player *player)
+void Player_Update(Player *player, float deltaTime)
 {
     // mise à jour de l'animation
-    Entity_UpdateAnimation(&player->baseEntity);
+    Entity_UpdateAnimation(&player->baseEntity, deltaTime);
 
     // recalculer la hitbox
     Entity *entity = &player->baseEntity;

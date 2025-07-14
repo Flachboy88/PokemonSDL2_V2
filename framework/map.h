@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
 #include "tmx.h"
+#include "../game/npc.h"
 
 typedef struct
 {
@@ -29,6 +30,8 @@ typedef struct
     float speed;
     int direction;
     bool is_throughable;
+    float x, y;
+    int width, height;
 } PNJ_init;
 
 typedef struct
@@ -46,8 +49,13 @@ typedef struct
     PNJ_init **pnj_list;
     int pnj_count;
 
+    NPC **npc;
+    int npc_count;
+
     float spawn_x, spawn_y;
     char *filename;
+
+    bool map_visited;
 } Map;
 
 // Fonctions principales
@@ -56,7 +64,10 @@ void Map_Free(Map *map);
 void Map_Update(Map *map, float deltaTime);
 void Map_RenderLayer(Map *map, SDL_Renderer *renderer, const char *layer_name);
 void Map_RenderAllLayers(Map *map, SDL_Renderer *renderer);
+void Map_RenderNPC(Map *map, SDL_Renderer *renderer);
 static void Map_LoadPNJ(Map *map);
+void Map_CreateNPC(Map *map, SDL_Renderer *renderer);
+void Map_UpdateNPC(Map *map, float deltaTime);
 
 // Fonctions utilitaires
 int Map_CheckCollision(Map *map, SDL_Rect *rect);

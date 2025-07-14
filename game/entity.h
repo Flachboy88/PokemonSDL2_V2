@@ -41,7 +41,7 @@ typedef struct
     int animationCount;          // Nombre total d'animations
     int currentAnimationIndex;   // Index de l'animation en cours
     int currentFrameIndex;       // Index du cadre actuel de l'animation
-    Uint32 lastFrameTime;        // Temps du dernier changement de cadre
+    float frameTimer;            // Temps du dernier changement de cadre
     bool animationPaused;        // Indique si l'animation est en pause
     bool traversable;            // Indique si l'entité peut être traversée
     int spriteWidth;             // Largeur d'un sprite sur la feuille (peut devenir spécifique à la SpriteSheet active)
@@ -65,9 +65,11 @@ void Entity_AddAnimation(Entity *entity, const char *animationName,
                          int frameDurationMs, bool loop);
 
 void Entity_SetAnimation(Entity *entity, const char *animationName);
-void Entity_UpdateAnimation(Entity *entity);
+void Entity_UpdateAnimation(Entity *entity, float deltaTime);
 void Entity_Draw(Entity *entity, SDL_Renderer *renderer);
 void Entity_PauseAnimation(Entity *entity, bool pause);
 void Entity_Free(Entity *entity);
+void Entity_setHitbox(Entity *entity, int x, int y, int w, int h);
+void DrawHitbox(SDL_Renderer *renderer, SDL_Rect *hitbox);
 
 #endif // ENTITY_H

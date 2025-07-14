@@ -132,6 +132,7 @@ Map *Map_Load(const char *filename, SDL_Renderer *renderer)
 
     // Chargement des PNJ
     Map_LoadPNJ(map);
+    Map_CreateNPC(map, renderer);
 
     // Charger la position du spawn par défaut
     Map_SetDefaultSpawn(map);
@@ -183,6 +184,16 @@ void Map_Free(Map *map)
     }
     free(map->pnj_list);
 
+    for (int i = 0; i < map->npc_count; i++)
+    {
+        if (map->npc[i])
+        {
+            NPC_Free(map->npc[i]);
+            free(map->npc[i]);
+        }
+    }
+    free(map->npc);
+
     // Libération de la map TMX
     if (map->tmx_map)
     {
@@ -211,6 +222,8 @@ void Map_Update(Map *map, float deltaTime)
             tile->last_update = 0;
         }
     }
+
+    Map_UpdateNPC(map, deltaTime);
 }
 
 void Map_RenderLayer(Map *map, SDL_Renderer *renderer, const char *layer_name)
@@ -345,7 +358,7 @@ static void Map_LoadCollisions(Map *map)
         }
     }
 }
-// Implémentation de Map_LoadAnimatedTiles
+
 void Map_LoadAnimatedTiles(Map *map)
 {
     if (!map || !map->tmx_map)
@@ -446,11 +459,109 @@ void Map_LoadPNJ(Map *map)
                         pnj->direction = prop->value.integer;
                     if ((prop = tmx_get_property(obj->properties, "Hitbox")) && prop->type == PT_BOOL)
                         pnj->is_throughable = prop->value.boolean;
+                    if ((prop = tmx_get_property(obj->properties, "width")) && prop->type == PT_INT)
+                        pnj->width = prop->value.integer;
+                    if ((prop = tmx_get_property(obj->properties, "height")) && prop->type == PT_INT)
+                        pnj->height = prop->value.integer;
+
+                    pnj->x = obj->x;
+                    pnj->y = obj->y;
 
                     map->pnj_list[idx++] = pnj;
                 }
             }
             obj = obj->next;
+        }
+    }
+}
+
+void Map_CreateNPC(Map *map, SDL_Renderer *renderer)
+{
+    if (!map || map->pnj_count == 0)
+        return;
+
+    // Allouer le tableau de NPC
+    map->npc = calloc(map->pnj_count, sizeof(NPC *));
+    if (!map->npc)
+        return;
+
+    map->npc_count = 0;
+
+    for (int i = 0; i < map->pnj_count; i++)
+    {
+        if (map->pnj_list[i])
+        {
+            NPC *npc = malloc(sizeof(NPC));
+            if (npc)
+            {
+
+                char sprite_path[512];
+                snprintf(sprite_path, sizeof(sprite_path), "resources/sprites/%s", map->pnj_list[i]->sprite_path);
+
+                // Utiliser les informations de PNJ_init pour créer le NPC
+                if (NPC_Init(npc, renderer, map->pnj_list[i]->sprite_path, map->pnj_list[i]->width, map->pnj_list[i]->height, map->pnj_list[i]->x, map->pnj_list[i]->y, NPC_HITBOX_WIDTH, NPC_HITBOX_HEIGHT, map->pnj_list[i]->speed))
+                {
+                    npc->baseEntity.traversable = map->pnj_list[i]->is_throughable;
+                    npc->direction = map->pnj_list[i]->direction;
+
+                    Entity_AddAnimation(&npc->baseEntity, "walk_down", "DEFAULT", 0, 0, 4, 200, true);
+                    Entity_AddAnimation(&npc->baseEntity, "walk_left", "DEFAULT", 1, 0, 4, 200, true);
+                    Entity_AddAnimation(&npc->baseEntity, "walk_right", "DEFAULT", 2, 0, 4, 200, true);
+                    Entity_AddAnimation(&npc->baseEntity, "walk_top", "DEFAULT", 3, 0, 4, 150, true);
+
+                    switch (npc->direction)
+                    {
+                    case 0:
+                        Entity_SetAnimation(&npc->baseEntity, "idle_down");
+                        break;
+                    case 1:
+                        Entity_SetAnimation(&npc->baseEntity, "idle_left");
+                        break;
+                    case 2:
+                        Entity_SetAnimation(&npc->baseEntity, "idle_right");
+                        break;
+                    case 3:
+                        Entity_SetAnimation(&npc->baseEntity, "idle_down");
+                        break;
+                    default:
+                        Entity_SetAnimation(&npc->baseEntity, "idle_down");
+                        break;
+                    }
+
+                    map->npc[map->npc_count] = npc;
+                    map->npc_count++;
+                }
+                else
+                {
+                    printf("Erreur lors de l'initialisation du NPC avec le sprite: %s\n", sprite_path);
+                    free(npc);
+                }
+            }
+        }
+    }
+}
+
+void Map_RenderNPC(Map *map, SDL_Renderer *renderer)
+{
+    for (int i = 0; i < map->npc_count; i++)
+    {
+        if (map->npc[i])
+        {
+            NPC_Draw(map->npc[i], renderer);
+        }
+    }
+}
+
+void Map_UpdateNPC(Map *map, float deltaTime)
+{
+    if (!map || !map->npc)
+        return;
+
+    for (int i = 0; i < map->npc_count; i++)
+    {
+        if (map->npc[i])
+        {
+            NPC_Update(map->npc[i], deltaTime);
         }
     }
 }

@@ -12,7 +12,8 @@ typedef struct NPC
     float actionTimer;
     float actionDuration;
     int currentAction;
-    // ajouter name etc
+    char *name;
+    int direction;
 } NPC;
 
 bool NPC_Init(NPC *npc, SDL_Renderer *renderer, const char *spriteSheetPath,
@@ -22,5 +23,6 @@ bool NPC_Init(NPC *npc, SDL_Renderer *renderer, const char *spriteSheetPath,
 void NPC_Free(NPC *npc);
 void NPC_Update(NPC *npc, float deltaTime);
 void NPC_Draw(NPC *npc, SDL_Renderer *renderer);
+void NPC_AddAnimation(NPC *npc, const char *animationName, const char *spriteSheetName, int frameDurationMs, bool loop, int startRow, int startCol, int frameCount);
 
 #endif // NPC_H

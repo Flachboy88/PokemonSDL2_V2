@@ -176,7 +176,7 @@ void Game_UpdateData(Game *game, float deltaTime)
     {
     case MODE_WORLD:
         Map_Update(game->current_map, deltaTime);
-        Player_Update(game->player);
+        Player_Update(game->player, deltaTime);
         break;
     default:
         break;
@@ -196,6 +196,7 @@ static void Game_UpdateGraphics(Game *game)
             Map_RenderLayer(game->current_map, game->renderer, "BackgroundCalque");
             Map_RenderLayer(game->current_map, game->renderer, "PremierPlanCalque");
             Player_Draw(game->player, game->renderer);
+            Map_RenderNPC(game->current_map, game->renderer);
             Map_RenderLayer(game->current_map, game->renderer, "SecondPlanCalque");
         }
 

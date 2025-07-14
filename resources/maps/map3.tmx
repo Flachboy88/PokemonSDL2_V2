@@ -85,8 +85,10 @@
     <property name="Hitbox" type="bool" value="true"/>
     <property name="Name" value="Josephine"/>
     <property name="dir" type="int" value="3"/>
+    <property name="height" type="int" value="32"/>
     <property name="speed" type="float" value="50"/>
-    <property name="sprite" value="../resources/sprites/pnj.png"/>
+    <property name="sprite" value="resources/sprites/pnj.png"/>
+    <property name="width" type="int" value="25"/>
    </properties>
    <point/>
   </object>

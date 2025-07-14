@@ -32,7 +32,6 @@ static int findSpriteSheetIndex(Entity *entity, const char *spriteSheetName)
 }
 
 // Initialisation de l'entité, sans chargement de spriteSheet.
-// Les paramètres spriteWidth et spriteHeight sont conservés pour l'initialisation de la hitbox
 bool Entity_Init(Entity *entity, int spriteWidth, int spriteHeight, float x, float y, int hitboxWidth, int hitboxHeight, bool traversable)
 {
     memset(entity, 0, sizeof(Entity)); // Initialise à zéro
@@ -54,7 +53,7 @@ bool Entity_Init(Entity *entity, int spriteWidth, int spriteHeight, float x, flo
 
     entity->currentAnimationIndex = -1;
     entity->currentFrameIndex = 0;
-    entity->lastFrameTime = SDL_GetTicks();
+    entity->frameTimer = 0.0f;
     entity->animationPaused = false;
     entity->spriteWidth = spriteWidth;
     entity->spriteHeight = spriteHeight;
@@ -175,7 +174,7 @@ void Entity_AddAnimation(Entity *entity, const char *animationName,
         entity->currentAnimationIndex = 0;
         entity->currentAnimation = &entity->animations[0];
         entity->currentFrameIndex = 0;
-        entity->lastFrameTime = SDL_GetTicks();
+        entity->frameTimer = 0.0f;
         // Mettre à jour les dimensions du sprite de l'entité avec celles de la première animation
         entity->spriteWidth = usedSheet->spriteWidth;
         entity->spriteHeight = usedSheet->spriteHeight;
@@ -189,8 +188,8 @@ void Entity_SetAnimation(Entity *entity, const char *animationName)
     {
         entity->currentAnimationIndex = newIndex;
         entity->currentAnimation = &entity->animations[newIndex];
-        entity->currentFrameIndex = 0;          // Réinitialise le cadre au début de la nouvelle animation
-        entity->lastFrameTime = SDL_GetTicks(); // Réinitialise le temps du dernier cadre
+        entity->currentFrameIndex = 0; // Réinitialise le cadre au début de la nouvelle animation
+        entity->frameTimer = 0.0f;     // Réinitialise le temps du dernier cadre
         entity->animationPaused = false;
 
         // IMPORTANT: Mettre à jour les dimensions générales du sprite de l'entité
@@ -206,7 +205,7 @@ void Entity_SetAnimation(Entity *entity, const char *animationName)
     }
 }
 
-void Entity_UpdateAnimation(Entity *entity)
+void Entity_UpdateAnimation(Entity *entity, float deltaTime)
 {
     if (entity->animationPaused || entity->currentAnimationIndex == -1)
     {
@@ -214,9 +213,11 @@ void Entity_UpdateAnimation(Entity *entity)
     }
 
     Animation *currentAnim = &entity->animations[entity->currentAnimationIndex];
-    Uint32 currentTime = SDL_GetTicks();
 
-    if (currentTime - entity->lastFrameTime >= currentAnim->frameDurationMs)
+    // Accumuler le temps écoulé
+    entity->frameTimer += deltaTime * 1000.0f; // Convertir deltaTime en ms
+
+    if (entity->frameTimer >= currentAnim->frameDurationMs)
     {
         entity->currentFrameIndex++;
         if (entity->currentFrameIndex >= currentAnim->frameCount)
@@ -231,7 +232,7 @@ void Entity_UpdateAnimation(Entity *entity)
                 entity->animationPaused = true;                          // Met en pause l'animation à la fin si elle ne boucle pas
             }
         }
-        entity->lastFrameTime = currentTime;
+        entity->frameTimer = 0.0f; // Réinitialiser le timer
     }
 }
 
@@ -266,9 +267,13 @@ void Entity_Draw(Entity *entity, SDL_Renderer *renderer)
     // Rendu de la bonne texture
     SDL_RenderCopy(renderer, usedSheet->texture, &srcRect, &destRect);
 
-    // Pour le débogage: Dessiner la hitbox
+    // DrawHitbox(renderer, &entity->hitbox);
+}
+
+void DrawHitbox(SDL_Renderer *renderer, SDL_Rect *hitbox)
+{
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Rouge
-    SDL_RenderDrawRect(renderer, &entity->hitbox);
+    SDL_RenderDrawRect(renderer, hitbox);
 }
 
 void Entity_PauseAnimation(Entity *entity, bool pause)
@@ -306,4 +311,12 @@ void Entity_Free(Entity *entity)
         entity->animationCount = 0;
     }
     memset(entity, 0, sizeof(Entity));
+}
+
+void Entity_setHitbox(Entity *entity, int x, int y, int w, int h)
+{
+    entity->hitbox.x = x;
+    entity->hitbox.y = y;
+    entity->hitbox.w = w;
+    entity->hitbox.h = h;
 }
