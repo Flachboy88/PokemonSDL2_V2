@@ -31,6 +31,7 @@ bool Player_Init(Player *player, SDL_Renderer *renderer, const char *initialSpri
     Entity_AddAnimation(&player->baseEntity, "walk_top", "WALK", 3, 0, 4, 150, true);
 
     Entity_SetAnimation(&player->baseEntity, "idle_down");
+    player->baseEntity.currentAnimation = &player->baseEntity.animations[0];
 
     return true;
 }
@@ -40,8 +41,9 @@ void Player_Update(Player *player)
     Entity_UpdateAnimation(&player->baseEntity);
 
     // recalculer la hitbox
-    player->baseEntity.hitbox.x = (int)(player->baseEntity.x + player->baseEntity.spriteWidth / 2 - LARGEUR_HITBOX / 2); // hitbox au pied du joueur
-    player->baseEntity.hitbox.y = (int)(player->baseEntity.y + player->baseEntity.spriteHeight - HAUTEUR_HITBOX);
+    Entity *entity = &player->baseEntity;
+    entity->hitbox.x = (int)(entity->x + entity->spriteWidth / 2 - LARGEUR_HITBOX / 2);
+    entity->hitbox.y = (int)(entity->y + entity->spriteHeight - HAUTEUR_HITBOX);
 }
 
 void Player_Draw(Player *player, SDL_Renderer *renderer)

@@ -33,19 +33,20 @@ typedef struct
 // --- Structure de base de l'entité ---
 typedef struct
 {
-    float x, y;                // Position de l'entité dans le monde
-    SDL_Rect hitbox;           // Rectangle de collision (dépend de x,y)
-    SpriteSheet *spriteSheets; // NOUVEAU: Tableau de feuilles de sprites de l'entité
-    int spriteSheetCount;      // NOUVEAU: Nombre de feuilles de sprites chargées
-    Animation *animations;     // Tableau de toutes les animations de l'entité
-    int animationCount;        // Nombre total d'animations
-    int currentAnimationIndex; // Index de l'animation en cours
-    int currentFrameIndex;     // Index du cadre actuel de l'animation
-    Uint32 lastFrameTime;      // Temps du dernier changement de cadre
-    bool animationPaused;      // Indique si l'animation est en pause
-    bool traversable;          // Indique si l'entité peut être traversée
-    int spriteWidth;           // Largeur d'un sprite sur la feuille (peut devenir spécifique à la SpriteSheet active)
-    int spriteHeight;          // Hauteur d'un sprite sur la feuille (peut devenir spécifique à la SpriteSheet active)
+    float x, y;                  // Position de l'entité dans le monde
+    SDL_Rect hitbox;             // Rectangle de collision (dépend de x,y)
+    SpriteSheet *spriteSheets;   // NOUVEAU: Tableau de feuilles de sprites de l'entité
+    int spriteSheetCount;        // NOUVEAU: Nombre de feuilles de sprites chargées
+    Animation *animations;       // Tableau de toutes les animations de l'entité
+    int animationCount;          // Nombre total d'animations
+    int currentAnimationIndex;   // Index de l'animation en cours
+    int currentFrameIndex;       // Index du cadre actuel de l'animation
+    Uint32 lastFrameTime;        // Temps du dernier changement de cadre
+    bool animationPaused;        // Indique si l'animation est en pause
+    bool traversable;            // Indique si l'entité peut être traversée
+    int spriteWidth;             // Largeur d'un sprite sur la feuille (peut devenir spécifique à la SpriteSheet active)
+    int spriteHeight;            // Hauteur d'un sprite sur la feuille (peut devenir spécifique à la SpriteSheet active)
+    Animation *currentAnimation; // Pointeur vers l'animation en cours
 
 } Entity;
 

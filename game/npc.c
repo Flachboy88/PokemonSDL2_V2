@@ -4,6 +4,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define NPC_ACTION_IDLE 0
+#define NPC_ACTION_WALK_DOWN 1
+#define NPC_ACTION_WALK_UP 2
+#define NPC_ACTION_WALK_LEFT 3
+#define NPC_ACTION_WALK_RIGHT 4
+
 // Update the NPC_Init function definition
 bool NPC_Init(NPC *npc, SDL_Renderer *renderer, const char *spriteSheetPath,
               int spriteWidth, int spriteHeight, float x, float y,
@@ -38,6 +44,8 @@ bool NPC_Init(NPC *npc, SDL_Renderer *renderer, const char *spriteSheetPath,
 
     Entity_SetAnimation(&npc->baseEntity, "idle_down");
 
+    npc->currentAction = NPC_ACTION_IDLE;
+
     return true;
 }
 
@@ -63,55 +71,60 @@ void NPC_Update(NPC *npc, float deltaTime)
         npc->actionTimer = 0.0f;
 
         // Choisir une nouvelle action aléatoire
-        int r = rand() % 5; // 0 à 4 : 4 directions + idle
+        int r = rand() % 5;
 
         switch (r)
         {
         case 0:
+            npc->currentAction = NPC_ACTION_WALK_DOWN;
             Entity_SetAnimation(&npc->baseEntity, "walk_down");
             npc->actionDuration = 1.0f + (rand() % 3); // 1 à 3 secondes
             break;
         case 1:
+            npc->currentAction = NPC_ACTION_WALK_UP;
             Entity_SetAnimation(&npc->baseEntity, "walk_top");
             npc->actionDuration = 1.0f + (rand() % 3);
             break;
         case 2:
+            npc->currentAction = NPC_ACTION_WALK_LEFT;
             Entity_SetAnimation(&npc->baseEntity, "walk_left");
             npc->actionDuration = 1.0f + (rand() % 3);
             break;
         case 3:
+            npc->currentAction = NPC_ACTION_WALK_RIGHT;
             Entity_SetAnimation(&npc->baseEntity, "walk_right");
             npc->actionDuration = 1.0f + (rand() % 3);
             break;
         case 4:
         default:
+            npc->currentAction = NPC_ACTION_IDLE;
             Entity_SetAnimation(&npc->baseEntity, "idle_down");
             npc->actionDuration = 2.0f + (rand() % 4); // 2 à 5 secondes d'idle
             break;
         }
     }
 
-    // Appliquer le déplacement selon l'animation courante
-    const char *anim = npc->baseEntity.animations[npc->baseEntity.currentAnimationIndex].name;
-
-    if (strcmp(anim, "walk_down") == 0)
+    // Appliquer le déplacement selon l'action courante (plus de strcmp!)
+    switch (npc->currentAction)
     {
+    case NPC_ACTION_WALK_DOWN:
         npc->baseEntity.y += npc->speed * deltaTime;
-    }
-    else if (strcmp(anim, "walk_top") == 0)
-    {
+        break;
+    case NPC_ACTION_WALK_UP:
         npc->baseEntity.y -= npc->speed * deltaTime;
-    }
-    else if (strcmp(anim, "walk_left") == 0)
-    {
+        break;
+    case NPC_ACTION_WALK_LEFT:
         npc->baseEntity.x -= npc->speed * deltaTime;
-    }
-    else if (strcmp(anim, "walk_right") == 0)
-    {
+        break;
+    case NPC_ACTION_WALK_RIGHT:
         npc->baseEntity.x += npc->speed * deltaTime;
+        break;
+    case NPC_ACTION_IDLE:
+    default:
+        // Pas de déplacement
+        break;
     }
 
-    // hitbox
     npc->baseEntity.hitbox.x = (int)(npc->baseEntity.x + npc->baseEntity.spriteWidth / 2 - NPC_HITBOX_WIDTH / 2);
     npc->baseEntity.hitbox.y = (int)(npc->baseEntity.y + npc->baseEntity.spriteHeight - NPC_HITBOX_HEIGHT);
 }

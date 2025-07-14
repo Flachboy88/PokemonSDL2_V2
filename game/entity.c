@@ -58,6 +58,7 @@ bool Entity_Init(Entity *entity, int spriteWidth, int spriteHeight, float x, flo
     entity->animationPaused = false;
     entity->spriteWidth = spriteWidth;
     entity->spriteHeight = spriteHeight;
+    entity->currentAnimation = NULL;
 
     return true;
 }
@@ -172,6 +173,7 @@ void Entity_AddAnimation(Entity *entity, const char *animationName,
     if (entity->animationCount == 1)
     {
         entity->currentAnimationIndex = 0;
+        entity->currentAnimation = &entity->animations[0];
         entity->currentFrameIndex = 0;
         entity->lastFrameTime = SDL_GetTicks();
         // Mettre à jour les dimensions du sprite de l'entité avec celles de la première animation
@@ -186,6 +188,7 @@ void Entity_SetAnimation(Entity *entity, const char *animationName)
     if (newIndex != -1 && newIndex != entity->currentAnimationIndex)
     {
         entity->currentAnimationIndex = newIndex;
+        entity->currentAnimation = &entity->animations[newIndex];
         entity->currentFrameIndex = 0;          // Réinitialise le cadre au début de la nouvelle animation
         entity->lastFrameTime = SDL_GetTicks(); // Réinitialise le temps du dernier cadre
         entity->animationPaused = false;
@@ -239,22 +242,23 @@ void Entity_Draw(Entity *entity, SDL_Renderer *renderer)
         return;
     }
 
-    Animation *currentAnim = &entity->animations[entity->currentAnimationIndex];
+    if (!entity->currentAnimation)
+        return;
     // S'assurer que l'index de la feuille de sprites est valide
-    if (currentAnim->spriteSheetIndex >= entity->spriteSheetCount || currentAnim->spriteSheetIndex < 0)
+    if (entity->currentAnimation->spriteSheetIndex >= entity->spriteSheetCount || entity->currentAnimation->spriteSheetIndex < 0)
     {
-        fprintf(stderr, "Erreur: Index de feuille de sprites invalide pour l'animation '%s'.\n", currentAnim->name);
+        fprintf(stderr, "Erreur: Index de feuille de sprites invalide pour l'animation '%s'.\n", entity->currentAnimation->name);
         return;
     }
 
-    SpriteSheet *usedSheet = &entity->spriteSheets[currentAnim->spriteSheetIndex];
+    SpriteSheet *usedSheet = &entity->spriteSheets[entity->currentAnimation->spriteSheetIndex];
     if (!usedSheet->texture) // Vérifier si la texture est chargée
     {
-        fprintf(stderr, "Erreur: Texture manquante pour la feuille de sprites '%s' utilisée par l'animation '%s'.\n", usedSheet->name, currentAnim->name);
+        fprintf(stderr, "Erreur: Texture manquante pour la feuille de sprites '%s' utilisée par l'animation '%s'.\n", usedSheet->name, entity->currentAnimation->name);
         return;
     }
 
-    Frame *currentFrame = &currentAnim->frames[entity->currentFrameIndex];
+    Frame *currentFrame = &entity->currentAnimation->frames[entity->currentFrameIndex];
 
     SDL_Rect srcRect = {currentFrame->x, currentFrame->y, currentFrame->w, currentFrame->h};
     SDL_Rect destRect = {(int)entity->x, (int)entity->y, currentFrame->w, currentFrame->h};

@@ -11,6 +11,7 @@ typedef struct NPC
     float speed;
     float actionTimer;
     float actionDuration;
+    int currentAction;
     // ajouter name etc
 } NPC;
 

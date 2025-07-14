@@ -1,5 +1,5 @@
 # Nom du compilateur
-CC = gcc
+CC = gcc -O2
 
 # Options d'inclusion (drapeaux -I) et de liaison (drapeaux -l et -L)
 INCLUDE = `sdl2-config --cflags` -I/usr/local/include
