@@ -193,21 +193,22 @@ void Map_Free(Map *map)
     free(map);
 }
 
-void Map_Update(Map *map)
+void Map_Update(Map *map, float deltaTime)
 {
     if (!map)
         return;
 
-    // Mise à jour des tiles animées
+    // Mise à jour des tiles animées avec deltaTime
     for (int i = 0; i < map->animated_tile_count; i++)
     {
         AnimatedTile *tile = &map->animated_tiles[i];
-        Uint32 current_time = SDL_GetTicks();
 
-        if (current_time - tile->last_update >= tile->frame_duration)
+        tile->last_update += deltaTime * 1000.0f;
+
+        if (tile->last_update >= tile->frame_duration)
         {
             tile->current_frame = (tile->current_frame + 1) % tile->frame_count;
-            tile->last_update = current_time;
+            tile->last_update = 0;
         }
     }
 }

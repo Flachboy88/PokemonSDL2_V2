@@ -53,7 +53,7 @@ typedef struct
 // Fonctions principales
 Map *Map_Load(const char *filename, SDL_Renderer *renderer);
 void Map_Free(Map *map);
-void Map_Update(Map *map);
+void Map_Update(Map *map, float deltaTime);
 void Map_RenderLayer(Map *map, SDL_Renderer *renderer, const char *layer_name);
 void Map_RenderAllLayers(Map *map, SDL_Renderer *renderer);
 static void Map_LoadPNJ(Map *map);
