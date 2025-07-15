@@ -18,7 +18,6 @@ bool Player_Init(Player *player, SDL_Renderer *renderer, const char *initialSpri
         return false;
     }
 
-    player->speed = PLAYER_SPEED;
     player->state = PLAYER_STATE_IDLE;
     player->currentDirection = DIRECTION_DOWN;
     player->targetDirection = DIRECTION_NONE;
@@ -27,6 +26,11 @@ bool Player_Init(Player *player, SDL_Renderer *renderer, const char *initialSpri
     player->targetY = y;
     player->hasTarget = false;
     player->wasMovingLastFrame = false;
+    player->currentMovementMode = MOVEMENT_WALK;
+    player->walkSpeed = PLAYER_SPEED;
+    player->runSpeed = PLAYER_SPEED * 1.5f;
+    player->bikeSpeed = PLAYER_SPEED * 2.0f;
+    player->speed = player->walkSpeed;
 
     if (!Entity_AddSpriteSheet(&player->baseEntity, renderer, initialSpriteSheetPath, "WALK", spriteWidth, spriteHeight))
     {
@@ -42,6 +46,17 @@ bool Player_Init(Player *player, SDL_Renderer *renderer, const char *initialSpri
     Entity_AddAnimation(&player->baseEntity, "walk_left", "WALK", 1, 0, 4, 200, true);
     Entity_AddAnimation(&player->baseEntity, "walk_right", "WALK", 2, 0, 4, 200, true);
     Entity_AddAnimation(&player->baseEntity, "walk_top", "WALK", 3, 0, 4, 150, true);
+
+    Entity_AddSpriteSheet(&player->baseEntity, renderer, "resources/sprites/player_bike.png", "BIKE", spriteWidth, spriteHeight);
+    Entity_AddAnimation(&player->baseEntity, "bike_idle_down", "BIKE", 0, 0, 1, 100, false);
+    Entity_AddAnimation(&player->baseEntity, "bike_idle_left", "BIKE", 1, 0, 1, 100, false);
+    Entity_AddAnimation(&player->baseEntity, "bike_idle_right", "BIKE", 2, 0, 1, 100, false);
+    Entity_AddAnimation(&player->baseEntity, "bike_idle_top", "BIKE", 3, 0, 1, 100, false);
+
+    Entity_AddAnimation(&player->baseEntity, "bike_down", "BIKE", 0, 0, 4, 100, true);
+    Entity_AddAnimation(&player->baseEntity, "bike_left", "BIKE", 1, 0, 4, 100, true);
+    Entity_AddAnimation(&player->baseEntity, "bike_right", "BIKE", 2, 0, 4, 100, true);
+    Entity_AddAnimation(&player->baseEntity, "bike_top", "BIKE", 3, 0, 4, 100, true);
 
     Entity_SetAnimation(&player->baseEntity, "idle_down");
     player->baseEntity.currentAnimation = &player->baseEntity.animations[0];
@@ -74,6 +89,21 @@ void Player_HandleInput(Player *player)
     Direction inputDir = Player_GetInputDirection();
     bool hasMovementInput = (inputDir != DIRECTION_NONE);
 
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    static bool spaceWasPressed = false;
+    bool spaceIsPressed = state[SDL_SCANCODE_SPACE];
+
+    if (spaceIsPressed && !spaceWasPressed)
+    {
+        if (player->currentMovementMode == MOVEMENT_WALK)
+        {
+            Player_SetMovementMode(player, MOVEMENT_BIKE);
+        }
+        else if (player->currentMovementMode == MOVEMENT_BIKE)
+        {
+            Player_SetMovementMode(player, MOVEMENT_WALK);
+        }
+    }
     if (hasMovementInput)
     {
         player->targetDirection = inputDir;
@@ -258,8 +288,6 @@ void Player_UpdateAnimation(Player *player)
     Direction directionToUse = player->currentDirection;
     if (directionToUse == DIRECTION_NONE)
     {
-        // Garder la dernière direction au lieu de revenir à DOWN
-        // On peut ajouter un champ lastDirection ou déduire depuis l'animation courante
         if (player->baseEntity.currentAnimation)
         {
             if (strstr(player->baseEntity.currentAnimation->name, "top"))
@@ -273,51 +301,85 @@ void Player_UpdateAnimation(Player *player)
         }
         else
         {
-            directionToUse = DIRECTION_DOWN; // Fallback
+            directionToUse = DIRECTION_DOWN;
         }
     }
+
+    const char *modePrefix;
+    switch (player->currentMovementMode)
+    {
+    case MOVEMENT_RUN:
+        modePrefix = "run";
+        break;
+    case MOVEMENT_BIKE:
+        modePrefix = "bike";
+        break;
+    default:
+        modePrefix = "walk";
+        break;
+    }
+
+    char animationName[64];
+    const char *directionSuffix;
 
     switch (directionToUse)
     {
     case DIRECTION_UP:
-        if (player->state == PLAYER_STATE_MOVING)
-        {
-            Entity_SetAnimation(&player->baseEntity, "walk_top");
-        }
-        else
-        {
-            Entity_SetAnimation(&player->baseEntity, "idle_top");
-        }
+        directionSuffix = "top";
         break;
     case DIRECTION_DOWN:
-        if (player->state == PLAYER_STATE_MOVING)
-        {
-            Entity_SetAnimation(&player->baseEntity, "walk_down");
-        }
-        else
-        {
-            Entity_SetAnimation(&player->baseEntity, "idle_down");
-        }
+        directionSuffix = "down";
         break;
     case DIRECTION_LEFT:
-        if (player->state == PLAYER_STATE_MOVING)
-        {
-            Entity_SetAnimation(&player->baseEntity, "walk_left");
-        }
-        else
-        {
-            Entity_SetAnimation(&player->baseEntity, "idle_left");
-        }
+        directionSuffix = "left";
         break;
     case DIRECTION_RIGHT:
-        if (player->state == PLAYER_STATE_MOVING)
+        directionSuffix = "right";
+        break;
+    default:
+        directionSuffix = "down";
+        break;
+    }
+
+    if (player->state == PLAYER_STATE_MOVING)
+    {
+        snprintf(animationName, sizeof(animationName), "%s_%s", modePrefix, directionSuffix);
+    }
+    else
+    {
+        if (player->currentMovementMode == MOVEMENT_BIKE)
         {
-            Entity_SetAnimation(&player->baseEntity, "walk_right");
+            snprintf(animationName, sizeof(animationName), "bike_idle_%s", directionSuffix);
+        }
+        else if (player->currentMovementMode == MOVEMENT_RUN)
+        {
+            snprintf(animationName, sizeof(animationName), "run_idle_%s", directionSuffix);
         }
         else
         {
-            Entity_SetAnimation(&player->baseEntity, "idle_right");
+            snprintf(animationName, sizeof(animationName), "idle_%s", directionSuffix);
         }
+    }
+
+    Entity_SetAnimation(&player->baseEntity, animationName);
+}
+
+void Player_SetMovementMode(Player *player, MovementMode mode)
+{
+    player->currentMovementMode = mode;
+
+    switch (mode)
+    {
+    case MOVEMENT_WALK:
+        player->speed = player->walkSpeed;
+        break;
+    case MOVEMENT_RUN:
+        player->speed = player->runSpeed;
+        break;
+    case MOVEMENT_BIKE:
+        player->speed = player->bikeSpeed;
         break;
     }
+
+    Player_UpdateAnimation(player);
 }

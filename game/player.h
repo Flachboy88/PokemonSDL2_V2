@@ -7,6 +7,13 @@
 
 typedef enum
 {
+    MOVEMENT_WALK,
+    MOVEMENT_RUN,
+    MOVEMENT_BIKE
+} MovementMode;
+
+typedef enum
+{
     PLAYER_STATE_IDLE,
     PLAYER_STATE_MOVING,
     PLAYER_STATE_FINISHING_MOVE
@@ -32,6 +39,12 @@ typedef struct
     float targetX, targetY;
     bool hasTarget;
     bool wasMovingLastFrame;
+
+    MovementMode currentMovementMode;
+    int walkSpeed;
+    int runSpeed;
+    int bikeSpeed;
+
 } Player;
 
 bool Player_Init(Player *player, SDL_Renderer *renderer, const char *spriteSheetPath,
@@ -46,5 +59,6 @@ void Player_HandleInput(Player *player);
 bool Player_TryMove(Player *player, Direction direction, float newX, float newY);
 Direction Player_GetInputDirection(void);
 void Player_UpdateAnimation(Player *player);
+void Player_SetMovementMode(Player *player, MovementMode mode);
 
 #endif // PLAYER_H
