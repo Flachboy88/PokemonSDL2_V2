@@ -1,35 +1,43 @@
 # Nom du compilateur
-CC = gcc -O2
+CC = gcc
+CFLAGS = -O2 -MD -MP
 
-# Options d'inclusion (drapeaux -I) et de liaison (drapeaux -l et -L)
+# Options d'inclusion et de liaison
 INCLUDE = `sdl2-config --cflags` -I/usr/local/include
-LIBS = `sdl2-config --libs` -lSDL2_image -ltmx -lz `xml2-config --libs` -lm
-
+LIBS   = `sdl2-config --libs` -lSDL2_image -ltmx -lz `xml2-config --libs` -lm
 
 # Fichiers sources
 SRC = main.c \
-      framework/map.c game/game.c game/entity.c game/player.c game/npc.c 
+      framework/map.c \
+      game/game.c \
+      game/entity.c \
+      game/player.c \
+      game/npc.c
 
-# Objets correspondants
+# Fichiers objets & dépendances
 OBJ = $(SRC:.c=.o)
+DEP = $(SRC:.c=.d)
 
 # Nom de l'exécutable
 EXEC = PokemonV2
 
-# Règle par défaut
+# Cible par défaut
 all: $(EXEC)
+
+# Inclure automatiquement les fichiers de dépendances
+-include $(DEP)
 
 # Édition des liens
 $(EXEC): $(OBJ)
-	$(CC) -o $@ $^ $(LIBS)
+	$(CC) $(OBJ) -o $@ $(LIBS)
 
-# Compilation des fichiers .c en .o
+# Compilation des .c en .o avec génération des dépendances
 %.o: %.c
-	$(CC) -c $< -o $@ $(INCLUDE)
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 # Nettoyage
 clean:
-	rm -f $(OBJ) $(EXEC)
+	rm -f $(OBJ) $(DEP) $(EXEC)
 
 # Exécution
 run: $(EXEC)

@@ -50,5 +50,7 @@ void Game_Render(Game *game);
 bool Game_InitSDL(Game *game, const char *title, int width, int height);
 bool Game_InitMap(Game *game, const char *map_name);
 bool Game_InitPlayer(Game *game);
+void HandlePlayerInput(Game *game);
+static void Game_UpdatePlayerMovement(Game *game, float deltaTime);
 
 #endif // GAME_H

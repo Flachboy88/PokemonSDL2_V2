@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="21" nextobjectid="22">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="23" nextobjectid="26">
  <tileset firstgid="1" name="Tools" tilewidth="16" tileheight="16" tilecount="36" columns="6">
   <image source="../../../PremierJeu/resources/tileset/Sprout Lands - Sprites - Basic pack/Characters/Tools.png" width="96" height="96"/>
   <tile id="14">
@@ -82,7 +82,7 @@
  <objectgroup id="20" name="PNJObject" class="PNJ">
   <object id="21" type="PNJ" x="232.667" y="106">
    <properties>
-    <property name="Hitbox" type="bool" value="true"/>
+    <property name="Hitbox" type="bool" value="false"/>
     <property name="Name" value="Josephine"/>
     <property name="dir" type="int" value="3"/>
     <property name="height" type="int" value="32"/>
@@ -97,7 +97,7 @@
   <properties>
    <property name="map_visited" type="bool" value="false"/>
   </properties>
-  <object id="12" name="PlayerSpawn" x="72.5833" y="175.811">
+  <object id="12" name="PlayerSpawn" x="80" y="160">
    <point/>
   </object>
  </objectgroup>

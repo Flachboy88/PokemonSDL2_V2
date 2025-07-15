@@ -502,6 +502,7 @@ void Map_CreateNPC(Map *map, SDL_Renderer *renderer)
                 if (NPC_Init(npc, renderer, map->pnj_list[i]->sprite_path, map->pnj_list[i]->width, map->pnj_list[i]->height, map->pnj_list[i]->x, map->pnj_list[i]->y, NPC_HITBOX_WIDTH, NPC_HITBOX_HEIGHT, map->pnj_list[i]->speed))
                 {
                     npc->baseEntity.traversable = map->pnj_list[i]->is_throughable;
+                    // printf("NPC hitbox traversable : %s\n", npc->baseEntity.traversable ? "oui" : "non");
                     npc->direction = map->pnj_list[i]->direction;
 
                     Entity_AddAnimation(&npc->baseEntity, "walk_down", "DEFAULT", 0, 0, 4, 200, true);
@@ -521,7 +522,7 @@ void Map_CreateNPC(Map *map, SDL_Renderer *renderer)
                         Entity_SetAnimation(&npc->baseEntity, "idle_right");
                         break;
                     case 3:
-                        Entity_SetAnimation(&npc->baseEntity, "idle_down");
+                        Entity_SetAnimation(&npc->baseEntity, "idle_top");
                         break;
                     default:
                         Entity_SetAnimation(&npc->baseEntity, "idle_down");

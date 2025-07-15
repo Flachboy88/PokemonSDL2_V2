@@ -6,7 +6,6 @@ static Map *Game_LoadAndInitMap(const char *name, SDL_Renderer *renderer);
 static bool Game_HandleInputEvents(Game *game, SDL_Event *event);
 void Game_UpdateData(Game *game, float deltaTime);
 static void Game_UpdateGraphics(Game *game);
-void TestNPC_Update(NPC *npc, float deltaTime);
 
 bool Game_InitSDL(Game *game, const char *title, int width, int height)
 {
@@ -176,6 +175,7 @@ void Game_UpdateData(Game *game, float deltaTime)
     {
     case MODE_WORLD:
         Map_Update(game->current_map, deltaTime);
+        Game_UpdatePlayerMovement(game, deltaTime);
         Player_Update(game->player, deltaTime);
         break;
     default:
@@ -233,8 +233,171 @@ void Game_HandleGameStateEvent(Game *game, float deltaTime)
     {
     case MODE_WORLD:
 
+        HandlePlayerInput(game);
+
         break;
     default:
         break;
     }
+}
+
+static bool Game_CanPlayerMoveTo(Game *game, float newX, float newY)
+{
+    // Créer une hitbox temporaire
+    SDL_Rect tempHitbox = {
+        (int)(newX + game->player->baseEntity.spriteWidth / 2 - PLAYER_HITBOX_WIDTH / 2),
+        (int)(newY + game->player->baseEntity.spriteHeight - PLAYER_HITBOX_HEIGHT),
+        PLAYER_HITBOX_WIDTH,
+        PLAYER_HITBOX_HEIGHT};
+
+    // Vérifier les collisions avec la map
+    if (Map_CheckCollision(game->current_map, &tempHitbox))
+    {
+        return false;
+    }
+
+    for (int i = 0; i < game->current_map->npc_count; i++)
+    {
+        NPC *npc = game->current_map->npc[i];
+        // printf("NPC hitbox traversable : %s\n", npc->baseEntity.traversable ? "oui" : "non");
+        if (!npc->baseEntity.traversable)
+        {
+            SDL_Rect npcHitbox = npc->baseEntity.hitbox;
+            if (SDL_HasIntersection(&tempHitbox, &npcHitbox))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+static void Game_UpdatePlayerMovement(Game *game, float deltaTime)
+{
+    Player *player = game->player;
+
+    // Traitement des inputs de mouvement
+    if (player->targetDirection != DIRECTION_NONE)
+    {
+        // Mouvement libre continu
+        float moveDistance = player->speed * deltaTime;
+        float newX = player->baseEntity.x;
+        float newY = player->baseEntity.y;
+
+        switch (player->targetDirection)
+        {
+        case DIRECTION_UP:
+            newY -= moveDistance;
+            break;
+        case DIRECTION_DOWN:
+            newY += moveDistance;
+            break;
+        case DIRECTION_LEFT:
+            newX -= moveDistance;
+            break;
+        case DIRECTION_RIGHT:
+            newX += moveDistance;
+            break;
+        default:
+            break;
+        }
+
+        // Vérifier les collisions et se coller si nécessaire
+        if (Game_CanPlayerMoveTo(game, newX, newY))
+        {
+            player->baseEntity.x = newX;
+            player->baseEntity.y = newY;
+            player->state = PLAYER_STATE_MOVING;
+        }
+        else
+        {
+            // Se coller à la collision
+            float stepX = (player->targetDirection == DIRECTION_LEFT) ? -1.0f : (player->targetDirection == DIRECTION_RIGHT) ? 1.0f
+                                                                                                                             : 0.0f;
+            float stepY = (player->targetDirection == DIRECTION_UP) ? -1.0f : (player->targetDirection == DIRECTION_DOWN) ? 1.0f
+                                                                                                                          : 0.0f;
+
+            // Avancer pixel par pixel jusqu'à collision
+            float testX = player->baseEntity.x;
+            float testY = player->baseEntity.y;
+
+            while (Game_CanPlayerMoveTo(game, testX + stepX, testY + stepY))
+            {
+                testX += stepX;
+                testY += stepY;
+            }
+
+            player->baseEntity.x = testX;
+            player->baseEntity.y = testY;
+            player->state = PLAYER_STATE_IDLE;
+            Player_UpdateAnimation(player);
+        }
+    }
+    else if (player->hasTarget)
+    {
+        // Alignement sur la grille
+        int n = 16;
+        float alignedX = player->baseEntity.x;
+        float alignedY = player->baseEntity.y;
+
+        // Calculer la prochaine position alignée selon la direction
+        switch (player->currentDirection)
+        {
+        case DIRECTION_LEFT:
+            alignedX = floor(player->baseEntity.x / n) * n;
+            break;
+        case DIRECTION_RIGHT:
+            alignedX = ceil(player->baseEntity.x / n) * n;
+            break;
+        case DIRECTION_UP:
+            alignedY = floor(player->baseEntity.y / n) * n;
+            break;
+        case DIRECTION_DOWN:
+            alignedY = ceil(player->baseEntity.y / n) * n;
+            break;
+        default:
+            break;
+        }
+
+        // Mouvement vers l'alignement
+        float dx = alignedX - player->baseEntity.x;
+        float dy = alignedY - player->baseEntity.y;
+        float distance = sqrt(dx * dx + dy * dy);
+
+        if (distance > 1.0f)
+        {
+            float moveDistance = player->speed * deltaTime;
+            if (moveDistance > distance)
+                moveDistance = distance;
+
+            float newX = player->baseEntity.x + (dx / distance) * moveDistance;
+            float newY = player->baseEntity.y + (dy / distance) * moveDistance;
+
+            if (Game_CanPlayerMoveTo(game, newX, newY))
+            {
+                player->baseEntity.x = newX;
+                player->baseEntity.y = newY;
+            }
+        }
+        else
+        {
+            // Alignement terminé
+            player->baseEntity.x = alignedX;
+            player->baseEntity.y = alignedY;
+            player->hasTarget = false;
+            player->state = PLAYER_STATE_IDLE;
+            Player_UpdateAnimation(player);
+        }
+    }
+    else
+    {
+        player->state = PLAYER_STATE_IDLE;
+        Player_UpdateAnimation(player);
+    }
+}
+
+void HandlePlayerInput(Game *game)
+{
+    Player_HandleInput(game->player);
 }

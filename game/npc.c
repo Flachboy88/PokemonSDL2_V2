@@ -47,8 +47,9 @@ void NPC_Update(NPC *npc, float deltaTime)
 {
     Entity_UpdateAnimation(&npc->baseEntity, deltaTime);
 
-    npc->baseEntity.hitbox.x = (int)(npc->baseEntity.x + npc->baseEntity.spriteWidth / 2 - NPC_HITBOX_WIDTH / 2);
-    npc->baseEntity.hitbox.y = (int)(npc->baseEntity.y + npc->baseEntity.spriteHeight - NPC_HITBOX_HEIGHT);
+    Entity *entity = &npc->baseEntity;
+    entity->hitbox.x = (int)(entity->x + entity->spriteWidth / 2 - NPC_HITBOX_WIDTH / 2);
+    entity->hitbox.y = (int)(entity->y + entity->spriteHeight - NPC_HITBOX_HEIGHT);
 }
 
 void NPC_Draw(NPC *npc, SDL_Renderer *renderer)

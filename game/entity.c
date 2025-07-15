@@ -267,7 +267,7 @@ void Entity_Draw(Entity *entity, SDL_Renderer *renderer)
     // Rendu de la bonne texture
     SDL_RenderCopy(renderer, usedSheet->texture, &srcRect, &destRect);
 
-    // DrawHitbox(renderer, &entity->hitbox);
+    DrawHitbox(renderer, &entity->hitbox);
 }
 
 void DrawHitbox(SDL_Renderer *renderer, SDL_Rect *hitbox)
